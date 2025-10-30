@@ -1,7 +1,11 @@
 #include <iostream>
 #include <string>
+#include "amazon_products.hpp"
 
 using namespace std;
+
+vector<Inventory> inventoryData;;
+
 
 void printHelp()
 {
@@ -18,7 +22,6 @@ bool validCommand(string line)
            (line.rfind("find", 0) == 0) ||
            (line.rfind("listInventory") == 0);
 }
-
 void evalCommand(string line)
 {
     if (line == ":help")
@@ -29,25 +32,61 @@ void evalCommand(string line)
     else if (line.rfind("find", 0) == 0)
     {
         // Look up the appropriate datastructure to find if the inventory exist
-        cout << "YET TO IMPLEMENT!" << endl;
+      //extract inventory id
+      string id = line.substr(5);
+      bool found = false;
+      for (const auto& item : inventoryData) {
+        if (item.uniqId == id){
+            item.print();
+            found = true;
+            break;
+        }
+        }
+      if (!found) {
+        cout << "Inventory not found" << endl;
+      }
     }
     // if line starts with listInventory
     else if (line.rfind("listInventory") == 0)
     {
         // Look up the appropriate datastructure to find all inventory belonging to a specific category
-        cout << "YET TO IMPLEMENT!" << endl;
+        string category = line.substr(14);
+        bool found = false;
+        for (const auto& item : inventoryData) {
+        for (const auto & cat : item.categories){
+            if (cat == category){
+                cout << "Uniq ID: " << item.uniqId
+                    << " | Product Name: " << item.productName << endl;
+                found = true;
+                break;
+            }
+        }
+    
+
+    if (!found) {
+        cout << "Invalid Category" << endl;
+    
+    }
+    }
     }
 }
 
 void bootStrap()
 {
     cout << "\n Welcome to Amazon Inventory Query System" << endl;
-    cout << " enter :quit to exit. or :help to list supported commands." << endl;
+    cout << " enter ':quit' to exit. or ':help' to list supported commands." << endl;
     cout << "\n> ";
-    // TODO: Do all your bootstrap operations here
-    // example: reading from CSV and initializing the data structures
-    // Don't dump all code into this single function
-    // use proper programming practices
+
+    string filename = "amazon_products.csv";
+    cout << "Load successful from " << filename << endl;
+
+    inventoryData = loadInventoryFromCSV(filename);
+
+    if (inventoryData.empty()) {
+        cerr <<"Hasn't loaded successfully. Exiting." << endl;
+    } else{ 
+        cout << "Loaded " << inventoryData.size() << " inventory successfully." << endl;
+    }
 }
 
 int main(int argc, char const *argv[])
